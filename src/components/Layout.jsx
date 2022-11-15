@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Sidebar from "../scenes/global/Sidebar";
-import Topbar from "../scenes/global/Topbar";
+import Sidebar from "../pages/global/Sidebar";
+import Topbar from "../pages/global/Topbar";
 
 export const Layout = ({ children }) => {
     const [isSidebar, setIsSidebar] = useState(true);

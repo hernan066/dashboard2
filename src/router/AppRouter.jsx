@@ -1,18 +1,18 @@
 import { Routes, Route, HashRouter } from "react-router-dom";
-import Bar from "../scenes/bar";
-import Calendar from "../scenes/calendar/calendar";
-import Contacts from "../scenes/contacts";
-import Dashboard from "../scenes/dashboard";
-import FAQ from "../scenes/faq";
-import Form from "../scenes/form";
-import Geography from "../scenes/geography";
-import Invoices from "../scenes/invoices";
-import Line from "../scenes/line";
-import Login from "../scenes/login/Login";
-import Pie from "../scenes/pie";
-import Users from "../scenes/users";
-import { UserCreate } from "../scenes/users/UserCreate";
-import { UserEdit } from "../scenes/users/UserEdit";
+import Bar from "../pages/bar";
+import Calendar from "../pages/calendar/calendar";
+import Contacts from "../pages/contacts";
+import Dashboard from "../pages/dashboard";
+import FAQ from "../pages/faq";
+import Form from "../pages/form";
+import Geography from "../pages/geography";
+import Invoices from "../pages/invoices";
+import Line from "../pages/line";
+import Login from "../pages/login/Login";
+import Pie from "../pages/pie";
+import { UserList } from "../pages/users/UserList";
+import { UserCreate } from "../pages/users/UserCreate";
+import { UserEdit } from "../pages/users/UserEdit";
 
 export const AppRouter = () => {
   return (
@@ -31,7 +31,7 @@ export const AppRouter = () => {
         <Route path="/geography" element={<Geography />} />
         <Route path="/login" element={<Login />} />
         
-        <Route path="/users" element={<Users />} />
+        <Route path="/users" element={<UserList />} />
         <Route path="/users/new" element={<UserCreate />} />
         <Route path="/users/edit/:id" element={<UserEdit />} />
       </Routes>
