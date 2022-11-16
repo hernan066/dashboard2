@@ -1,18 +1,27 @@
-import {  Paper, Typography, useTheme } from "@mui/material";
+import { LinearProgress, Paper, Typography, useTheme } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { tokens } from "../../theme";
-import { useEffect, useState } from "react";
-import { LoadingButton } from "@mui/lab";
-import SaveIcon from '@mui/icons-material/Save';
+import { useEffect, useRef, useState } from "react";
+import { IKContext, IKUpload } from "imagekitio-react";
+import { host } from "../../api/host";
+import axios from "axios";
+import { Box } from "@mui/system";
+import Swal from "sweetalert2";
+
+const publicKey = process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY;
+const urlEndpoint = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT;
+const authenticationEndpoint = `${host}/api/imageKit`;
 
 const imageMimeType = /image\/(png|jpg|jpeg)/i;
 
-export const AvatarUpload = () => {
+export const AvatarUpload = ({ user, token }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [file, setFile] = useState(null);
   const [fileDataURL, setFileDataURL] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const inputRefTest = useRef(null);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const changeHandler = (e) => {
     const file = e.target.files[0];
@@ -45,11 +54,43 @@ export const AvatarUpload = () => {
     };
   }, [file]);
 
-  const handleSubmit = (e)=>{
-    e.preventDefault()
-   console.log(file)
-   
-  }
+  const onError = (err) => {
+    console.log("Error", err);
+    setLoading(false);
+    setError(true);
+  };
+
+  const onSuccess = async (res) => {
+    console.log("Success", res);
+    try {
+      const { data } = await axios({
+        method: "put",
+        url: `http://localhost:3040/api/user/${user._id}`,
+        data: {
+          ...user,
+          avatar: res.url,
+        },
+        headers: { "x-token": `${token}` },
+      });
+
+      setLoading(false);
+      Swal.fire("OK", "Avatar cambiado exitosamente!!", "success");
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      setError(true);
+    }
+  };
+
+  /*  const onUploadProgress = (progress) => {
+    console.log("Progress", progress);
+  }; */
+
+  const onUploadStart = (evt) => {
+    console.log("Start", evt);
+    setLoading(true);
+  };
 
   return (
     <Paper
@@ -57,65 +98,127 @@ export const AvatarUpload = () => {
       sx={{
         textAlign: "center",
         padding: "15px",
-        height: "320px",
+        minHeight: "320px",
+
+        maxHeight: "340px",
       }}
     >
-      <form onSubmit={handleSubmit}>
-        <label
-          htmlFor="user_avatar_upload"
-          style={{
-            width: "150px",
-            height: "150px",
-            backgroundColor: "#ccc",
-            margin: "20px",
-            borderRadius: "50%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            border: "1px dashed  #333",
-            cursor: "pointer",
-            overflow: "hidden",
-          }}
-        >
-          <input
-            type="file"
-            id="user_avatar_upload"
-            accept=".png, .jpg, .jpeg"
-            onChange={changeHandler}
-            style={{ display: "none" }}
-          />
-          {fileDataURL ? (
-            <img src={fileDataURL} alt="preview" style={{ height: "100%", objectFit: "cover",   }} />
-          ) : (
-            <>
-              <AddAPhotoIcon />
-              <Typography variant="body2" color={colors.grey[500]}>
-                Upload Avatar
-              </Typography>
-            </>
-          )}
-        </label>
+      <Typography variant="h4" color={colors.greenAccent[500]}>
+        {user.name}
+      </Typography>
+      <Typography variant="body2" color={colors.grey[700]}>
+        Id:{user._id}
+      </Typography>
+
+      <IKContext
+        publicKey={publicKey}
+        urlEndpoint={urlEndpoint}
+        authenticationEndpoint={authenticationEndpoint}
+      >
+        <IKUpload
+          fileName="avatar.png"
+          onError={onError}
+          onSuccess={onSuccess}
+          /*  onUploadProgress={onUploadProgress} */
+          onUploadStart={onUploadStart}
+          onChange={changeHandler}
+          /* validateFile={(file) =>
+              file.size < 2000000 && file.fileType === "image"
+            } */
+          style={{ display: "none" }}
+          inputRef={inputRefTest}
+        />
+
+        {inputRefTest && (
+          <button
+            onClick={() => inputRefTest.current.click()}
+            style={{
+              width: "150px",
+              height: "150px",
+              backgroundColor: "#ccc",
+              margin: "20px",
+              borderRadius: "50%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              border: "1px dashed  #333",
+              cursor: "pointer",
+             
+              position: "relative",
+            }}
+          >
+            {fileDataURL && (
+              <Box sx={{
+                borderRadius: "50%",
+                width: "150px",
+                height: "150px",
+                overflow: "hidden",
+                backgroundColor: "#15ab12",
+              }}>
+
+             {/*    <img
+                  src={fileDataURL}
+                  alt="preview"
+                  style={{ height: "100%", objectFit: "cover" }}
+                /> */}
+              </Box>
+            )}
+            {!fileDataURL && (
+              <>
+                {/*  <AddAPhotoIcon />
+                <Typography variant="body2" color={colors.grey[500]}>
+                  Upload Avatar
+                </Typography> */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                      zIndex: "10",
+                      bottom: 0,
+                      right: 0,
+                      backgroundColor: colors.greenAccent[500],
+                      color: "white",
+                      borderRadius: "50%",
+                      padding: "5px",
+                  }}
+                >
+                  <AddAPhotoIcon
+                    sx={{
+                     
+                    }}
+                  />
+                </Box>
+                <Box sx={{
+                borderRadius: "50%",
+                width: "150px",
+                height: "150px",
+                overflow: "hidden",
+              
+              }}>
+
+               <img
+                  src={user.avatar}
+                  alt="preview"
+                  style={{ height: "100%", objectFit: "cover" }}
+                /> 
+              </Box>
+              </>
+            )}
+          </button>
+        )}
+        {loading && (
+          <Box sx={{ width: "100%" }}>
+            <LinearProgress />
+          </Box>
+        )}
+        <Typography variant="body" color={colors.grey[500]}></Typography>
         <Typography variant="body2" color={colors.grey[500]}>
           Allowed *.jpeg, *.jpg and *.png max size of 3.1 MB
         </Typography>
-          
-        <LoadingButton
-              type="submit"
-              size="small"
-              variant="contained"
-              loading={isLoading}
-              sx={{
-                mt: 3,
-                mb: 2,
-                backgroundColor: colors.blueAccent[400],
-                "&:hover": { backgroundColor: colors.blueAccent[300] },
-              }}
-            >
-              <SaveIcon/>
-              Guardar
-            </LoadingButton>
-      </form>
+        {error && (
+          <p style={{ color: "red" }}>Error: no se pudo cambiar el avatar</p>
+        )}
+      </IKContext>
     </Paper>
   );
 };

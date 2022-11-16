@@ -5,7 +5,8 @@ const userSlice = createSlice({
   initialState: {
     currentUser: null,
     whatsappUser: null,
-    listUsers: null
+    listUsers: null,
+    editUser: null,
   },
   reducers: {
     
@@ -26,10 +27,13 @@ const userSlice = createSlice({
     },
     getListUsers:(state, action) => {
       state.listUsers = action.payload;
+    },
+    getUserDispatch:(state, action) => {
+      state.editUser = action.payload;
     }
 
   },
 });
 
-export const {login, register, logout, getWhatsappUser, getWhatsappUserAddress, getListUsers} = userSlice.actions;
+export const {login, register, logout, getWhatsappUser, getWhatsappUserAddress, getListUsers, getUserDispatch} = userSlice.actions;
 export default userSlice.reducer;

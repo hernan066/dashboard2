@@ -1,33 +1,31 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { tokens } from "../../theme";
+import { Layout } from "../../components/Layout";
+import { PopoverMenu } from "../../components/ui/PopoverMenu";
+import { LoadingSkeleton } from "../../components/loading/Skeleton";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Header from "../../components/Header";
+import useSWR from "swr";
+import axios from "axios";
 import {
   Avatar,
   Box,
   Button,
   IconButton,
-  MenuItem,
-  Popover,
   Stack,
   useTheme,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { tokens } from "../../theme";
-import { Layout } from "../../components/Layout";
-import { useNavigate } from "react-router-dom";
-import Header from "../../components/Header";
-import useSWR from "swr";
-import axios from "axios";
-import { LoadingSkeleton } from "../../components/loading/Skeleton";
 
 export const UserList = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const navigate = useNavigate();
-  const { token } = useSelector((store) => store.user.currentUser);
-  const [open, setOpen] = useState(null);
+  
+  const theme               = useTheme();
+  const colors              = tokens(theme.palette.mode);
+  const navigate            = useNavigate();
+  const { token }           = useSelector((store) => store.user.currentUser);
+  const [open, setOpen]     = useState(null);
   const [userId, setUserId] = useState(null);
 
   const fetcher = (url) =>
@@ -35,13 +33,8 @@ export const UserList = () => {
       headers: { "x-token": `${token}` },
     });
 
-  const { data: usersData, error: err } = useSWR(
-    `http://localhost:3040/api/user`,
-    fetcher
-  );
-  let users = usersData?.data.data.users
-
-  
+  const { data: usersData } = useSWR(`http://localhost:3040/api/user`, fetcher);
+  let users = usersData?.data.data.users;
 
   const handleOpenMenu = (id, event) => {
     setOpen(event.currentTarget);
@@ -162,52 +155,26 @@ export const UserList = () => {
                 rows={users.map((user) => {
                   return {
                     _id: user._id,
-                    name: user.name,
+                    name: user.name + ' '+ user.lastName,
                     email: user.email,
                     phone: user.phone,
                     avatar: user.avatar,
                     role: user.role.role,
                   };
                 })}
-                /*  rows={[name: juan]} */
                 columns={columns}
                 getRowId={(row) => row._id}
+                components={{ Toolbar: GridToolbar }}
               />
             </Box>
           </Box>
         </Layout>
       )}
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            "& .MuiMenuItem-root": {
-              px: 1,
-              typography: "body2",
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem onClick={() => navigate(`users/edit/${userId}`)}>
-          <EditIcon />
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: "error.main" }}>
-          <DeleteIcon />
-          Delete
-        </MenuItem>
-      </Popover>
+      <PopoverMenu
+        open={open}
+        handleCloseMenu={handleCloseMenu}
+        userId={userId}
+      />
     </>
   );
 };
-
-

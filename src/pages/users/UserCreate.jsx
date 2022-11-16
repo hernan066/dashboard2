@@ -153,7 +153,7 @@ export const UserCreate = () => {
             gap: 5,
           }}
         >
-          <AvatarUpload />
+         
           <Paper elevation={5}>
             <Box
               component="form"
