@@ -4,9 +4,12 @@ import { tokens } from "../../theme";
 import { useEffect, useRef, useState } from "react";
 import { IKContext, IKUpload } from "imagekitio-react";
 import { host } from "../../api/host";
-import axios from "axios";
+
 import { Box } from "@mui/system";
 import Swal from "sweetalert2";
+import apiRequest from "../../api/apiRequest";
+
+
 
 const publicKey = process.env.REACT_APP_IMAGEKIT_PUBLIC_KEY;
 const urlEndpoint = process.env.REACT_APP_IMAGEKIT_URL_ENDPOINT;
@@ -14,15 +17,16 @@ const authenticationEndpoint = `${host}/api/imageKit`;
 
 const imageMimeType = /image\/(png|jpg|jpeg)/i;
 
-export const AvatarUpload = ({ user, token }) => {
+export const AvatarUpload = ({ user }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
   const [file, setFile] = useState(null);
   const [fileDataURL, setFileDataURL] = useState(null);
   const inputRefTest = useRef(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-
+ 
   const changeHandler = (e) => {
     const file = e.target.files[0];
     if (!file.type.match(imageMimeType)) {
@@ -63,23 +67,23 @@ export const AvatarUpload = ({ user, token }) => {
   const onSuccess = async (res) => {
     console.log("Success", res);
     try {
-      const { data } = await axios({
-        method: "put",
-        url: `http://localhost:3040/api/user/${user._id}`,
-        data: {
-          ...user,
-          avatar: res.url,
-        },
-        headers: { "x-token": `${token}` },
+     
+      const { data } = await apiRequest.put(`/user/${user._id}`, {
+        ...user,
+        avatar: res.url,
       });
-
+     
       setLoading(false);
+      
+      
       Swal.fire("OK", "Avatar cambiado exitosamente!!", "success");
-      console.log(data);
+      
+      
     } catch (error) {
       console.log(error);
       setLoading(false);
       setError(true);
+      setFileDataURL(null)
     }
   };
 
@@ -88,7 +92,7 @@ export const AvatarUpload = ({ user, token }) => {
   }; */
 
   const onUploadStart = (evt) => {
-    console.log("Start", evt);
+    //console.log("Start", evt);
     setLoading(true);
   };
 

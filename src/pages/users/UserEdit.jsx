@@ -24,6 +24,7 @@ import Swal from "sweetalert2/src/sweetalert2.js";
 import { getUserDispatch } from "../../redux/userSlice";
 import useSWR from "swr";
 import axios from "axios";
+import apiRequest from "../../api/apiRequest";
 
 const { lettersNumbersAndSpaces } = validations;
 
@@ -53,28 +54,27 @@ export const UserEdit = () => {
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { currentUser, editUser } = useSelector((store) => store.user);
+  const { editUser } = useSelector((store) => store.user);
+  const { token } = useSelector((store) => store.auth);
   const [isLoading, setIsLoading] = useState(false);
   const [roles, setRoles] = useState([]);
   const [error, setError] = useState([]);
   const [user, setUser] = useState({});
   let { id } = useParams();
 
-  useEffect(() => {
+   useEffect(() => {
     const getRoles = async () => {
-      const { data } = await api.get("/roles", {
-        headers: { "x-token": `${currentUser.token}` },
-      });
+      const { data } = await apiRequest.get("/roles");
       setRoles(data.data.roles);
     };
     getRoles();
   }, [setRoles]);
 
+  
+
   useEffect(() => {
     const getUser = async () => {
-      const { data } = await api.get(`/user/${id}`, {
-        headers: { "x-token": `${currentUser.token}` },
-      });
+      const { data } = await apiRequest.get(`/user/${id}`);
       const editUser = data.data.user;
       setUser(editUser);
       dispatch(getUserDispatch(editUser));
@@ -84,18 +84,18 @@ export const UserEdit = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: editUser.name,
-      lastName: editUser.lastName,
-      email: editUser.email,
-      //password: editUser.password,
-      phone: editUser.phone,
-      role: editUser.role,
-      address: editUser.userAddresses[0].address,
-      flor: editUser.userAddresses[0].flor,
-      department: editUser.userAddresses[0].department,
-      province: editUser.userAddresses[0].province,
-      city: editUser.userAddresses[0].city,
-      zip: editUser.userAddresses[0].zip,
+      name: editUser?.name,
+      lastName: editUser?.lastName,
+      email: editUser?.email,
+      //password: editUser?.password,
+      phone: editUser?.phone,
+      role: editUser?.role || "",
+      address: editUser?.userAddresses[0].address,
+      flor: editUser?.userAddresses[0].flor,
+      department: editUser?.userAddresses[0].department,
+      province: editUser?.userAddresses[0].province,
+      city: editUser?.userAddresses[0].city,
+      zip: editUser?.userAddresses[0].zip,
     },
     onSubmit: async ({
       name,
@@ -113,28 +113,23 @@ export const UserEdit = () => {
     }) => {
       setIsLoading(true);
       try {
-        const { data } = await axios({
-          method: "put",
-          url: `http://localhost:3040/api/user/${user._id}`,
-          data: {
-            name,
-            lastName,
-            email,
-            phone,
-            password,
-            role,
-            userAddresses: [
-              {
-                address,
-                flor,
-                department,
-                city,
-                province,
-                zip,
-              },
-            ],
-          },
-          headers: { "x-token": `${currentUser.token}` },
+        const { data } = await apiRequest.put(`/user/${user._id}`, {
+          name,
+          lastName,
+          email,
+          phone,
+          password,
+          role,
+          userAddresses: [
+            {
+              address,
+              flor,
+              department,
+              city,
+              province,
+              zip,
+            },
+          ],
         });
 
         if (data.ok) {
@@ -177,7 +172,7 @@ export const UserEdit = () => {
             gap: 5,
           }}
         >
-          <AvatarUpload user={user} token={currentUser.token} />
+          <AvatarUpload user={user} token={token} />
 
           <Paper elevation={5}>
             <Box
@@ -259,6 +254,7 @@ export const UserEdit = () => {
                   name="role"
                   fullWidth
                   label="Rol"
+                
                   value={formik.values.role}
                   error={!!formik.errors.role}
                   helperText={formik.errors.role}
@@ -268,7 +264,9 @@ export const UserEdit = () => {
                     <MenuItem
                       key={option._id}
                       value={option._id}
-                      selected={formik.values.role === option._id && true}
+                      selected={
+                        formik.values.role === option._id ? true : false
+                      }
                     >
                       {option.role}
                     </MenuItem>

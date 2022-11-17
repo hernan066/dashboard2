@@ -1,4 +1,4 @@
-import { Routes, Route, HashRouter } from "react-router-dom";
+import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Bar from "../pages/bar";
 import Calendar from "../pages/calendar/calendar";
 import Contacts from "../pages/contacts";
@@ -16,44 +16,37 @@ import { UserEdit } from "../pages/users/UserEdit";
 import { UserDetails } from "../pages/users/UserDetails";
 import { useEffect } from "react";
 import { useAuthStore } from "../hooks/useAuthStore";
+import { PublicRoute } from "./PublicRoutes";
+import { PrivateRoute } from "./PrivateRoutes";
 
 export const AppRouter = () => {
-  const { status, checkAuthToken } = useAuthStore();
+  const { checkAuthToken } = useAuthStore();
   // const authStatus = 'not-authenticated'; // 'authenticated'; // 'not-authenticated';
 
   useEffect(() => {
     checkAuthToken();
   }, []);
 
-  /* if (status === "checking") {
-    return <h3>Cargando...</h3>;
-  } */
-
   return (
-    <HashRouter>
-      <Routes>
-        {status === "not-authenticated" || status === "checking"? (
-          <Route path="/" element={<Login />} />
-        ) : (
-          <>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/invoices" element={<Invoices />} />
-            <Route path="/form" element={<Form />} />
-            <Route path="/bar" element={<Bar />} />
-            <Route path="/pie" element={<Pie />} />
-            <Route path="/line" element={<Line />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/geography" element={<Geography />} />
+    <Routes>
+      {/* public */}
+      <Route path="/login"element={               <PublicRoute> <Login /> </PublicRoute>}/>
+      {/* private */}
+      <Route path="/" element={                   <PrivateRoute> <Dashboard />  </PrivateRoute>} />
+      <Route path="/contacts" element={           <PrivateRoute> <Contacts />   </PrivateRoute>} />
+      <Route path="/invoices" element={           <PrivateRoute> <Invoices />   </PrivateRoute>} />
+      <Route path="/form" element={               <PrivateRoute> <Form />       </PrivateRoute>} />
+      <Route path="/bar" element={                <PrivateRoute> <Bar />        </PrivateRoute>} />
+      <Route path="/pie" element={                <PrivateRoute> <Pie />        </PrivateRoute>} />
+      <Route path="/line" element={               <PrivateRoute> <Line />       </PrivateRoute>} />
+      <Route path="/faq" element={                <PrivateRoute> <FAQ />        </PrivateRoute>} />
+      <Route path="/calendar" element={           <PrivateRoute> <Calendar />   </PrivateRoute>} />
+      <Route path="/geography" element={          <PrivateRoute> <Geography />  </PrivateRoute>} />
 
-            <Route path="/users" element={<UserList />} />
-            <Route path="/users/new" element={<UserCreate />} />
-            <Route path="/users/edit/:id" element={<UserEdit />} />
-            <Route path="/users/details/:id" element={<UserDetails />} />
-          </>
-        )}
-      </Routes>
-    </HashRouter>
+      <Route path="/users" element={              <PrivateRoute> <UserList />   </PrivateRoute>} />
+      <Route path="/users/new" element={          <PrivateRoute> <UserCreate /> </PrivateRoute>} />
+      <Route path="/users/edit/:id" element={     <PrivateRoute> <UserEdit />   </PrivateRoute>} />
+      <Route path="/users/details/:id" element={  <PrivateRoute> <UserDetails/> </PrivateRoute>} />
+    </Routes>
   );
 };

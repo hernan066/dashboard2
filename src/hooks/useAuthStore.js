@@ -15,7 +15,7 @@ export const useAuthStore = () => {
     try {
       const { data } = await apiRequest.post("/auth/admin/login", { email, password });
       dispatch(
-        onLogin({ name: data.user.name, _id: data.user._id, token: data.token })
+        onLogin({ name: data?.user.name, _id: data?.user._id, avatar:data?.user.avatar, token: data?.token })
       );
      
     } catch (error) {
@@ -51,10 +51,12 @@ export const useAuthStore = () => {
 
     try {
       const { data } = await apiRequest.get("auth/revalidate_token");
+     
       dispatch(
-        onLogin({ name: data.user.name, _id: data.user._id, token: data.token })
+        onLogin({ name: data?.user?.name, _id: data?.user?._id, avatar:data?.user?.avatar, token: data?.token })
       );
     } catch (error) {
+      console.log(error);
       localStorage.clear();
       dispatch(onLogout());
     }

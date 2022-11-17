@@ -21,6 +21,7 @@ import { validations } from "../../helpers/regex";
 import Header from "../../components/Header";
 import { AvatarUpload } from "../../components/users/AvatarUpload";
 import Swal from 'sweetalert2/src/sweetalert2.js'
+import apiRequest from "../../api/apiRequest";
 
 const { lettersNumbersAndSpaces, lettersAndSpaces, onlyNumbers } = validations;
 
@@ -49,16 +50,14 @@ export const UserCreate = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-  const { currentUser } = useSelector((store) => store.user);
+ 
   const [isLoading, setIsLoading] = useState(false);
   const [roles, setRoles] = useState([]);
   const [error, setError] = useState([]);
 
   useEffect(() => {
     const getRoles = async () => {
-      const { data } = await api.get("/roles", {
-        headers: { "x-token": `${currentUser.token}` },
-      });
+      const { data } = await apiRequest.get("/roles");
       setRoles(data.data.roles);
     };
     getRoles();
@@ -95,7 +94,7 @@ export const UserCreate = () => {
     }) => {
       setIsLoading(true);
       try {
-        const { data } = await api.post("/user", {
+        const { data } = await apiRequest.post("/user", {
           name,
           lastName,
           email,

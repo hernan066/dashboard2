@@ -1,39 +1,35 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { Layout } from "../../components/Layout";
 import { PopoverMenu } from "../../components/ui/PopoverMenu";
-import { LoadingSkeleton } from "../../components/loading/Skeleton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Header from "../../components/Header";
 import useSWR from "swr";
-import axios from "axios";
+
 import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   IconButton,
   Stack,
   useTheme,
 } from "@mui/material";
+import apiRequest from "../../api/apiRequest";
 
 export const UserList = () => {
-  
-  const theme               = useTheme();
-  const colors              = tokens(theme.palette.mode);
-  const navigate            = useNavigate();
-  const { token }           = useSelector((store) => store.user.currentUser);
-  const [open, setOpen]     = useState(null);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(null);
   const [userId, setUserId] = useState(null);
 
-  const fetcher = (url) =>
-    axios.get(url, {
-      headers: { "x-token": `${token}` },
-    });
+  
+  const fetcher = (url) => apiRequest.get(url);
 
-  const { data: usersData } = useSWR(`http://localhost:3040/api/user`, fetcher);
+  const { data: usersData } = useSWR(`/user`, fetcher);
   let users = usersData?.data.data.users;
 
   const handleOpenMenu = (id, event) => {
@@ -97,10 +93,19 @@ export const UserList = () => {
 
   return (
     <>
-      {!usersData ? (
-        <LoadingSkeleton />
-      ) : (
-        <Layout>
+      <Layout>
+        {!usersData ? (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: '100vh'
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
           <Box m="20px">
             <Stack
               direction="row"
@@ -155,7 +160,7 @@ export const UserList = () => {
                 rows={users.map((user) => {
                   return {
                     _id: user._id,
-                    name: user.name + ' '+ user.lastName,
+                    name: user.name + " " + user.lastName,
                     email: user.email,
                     phone: user.phone,
                     avatar: user.avatar,
@@ -168,8 +173,9 @@ export const UserList = () => {
               />
             </Box>
           </Box>
-        </Layout>
-      )}
+        )}
+      </Layout>
+
       <PopoverMenu
         open={open}
         handleCloseMenu={handleCloseMenu}

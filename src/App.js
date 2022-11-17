@@ -5,13 +5,11 @@ import { AppRouter } from "./router/AppRouter";
 import { Provider } from "react-redux";
 import { store, persistor } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
+import { HashRouter } from "react-router-dom";
 
 function App() {
   const [theme, colorMode] = useMode();
-  const user = JSON.parse(localStorage.getItem("persist:root"))?.auth
-  const currentUser = user && JSON.parse(user).user;
-  const TOKEN = currentUser?.token;
-  console.log(TOKEN)
+ 
 
   return (
     <Provider store={store}>
@@ -19,7 +17,9 @@ function App() {
         <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AppRouter />
+            <HashRouter>
+              <AppRouter />
+            </HashRouter>
           </ThemeProvider>
         </ColorModeContext.Provider>
       </PersistGate>

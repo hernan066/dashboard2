@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
   return (
     <MenuItem
       active={selected === title}
@@ -41,7 +42,9 @@ const Sidebar = () => {
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-  /* const { currentUser }= useSelector((store)=> store.user) */
+  const {  name, avatar } = useSelector((store) => store.auth.user);
+
+  
 
   return (
     <Box
@@ -98,7 +101,7 @@ const Sidebar = () => {
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={`../../assets/user_default.png`}
+                  src={avatar}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
@@ -112,7 +115,7 @@ const Sidebar = () => {
                 {/*  {currentUser.name} */}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  Administrador
+                  {name}
                 </Typography>
               </Box>
             </Box>

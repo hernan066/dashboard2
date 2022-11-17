@@ -56,11 +56,8 @@ export default function Login() {
   });
 
   useEffect(() => {
-    if (status === "authenticated") {
-      navigate("/dashboard");
-    }
-    console.log(status);
-  }, [status]);
+    status === "checking" ? setIsLoading(true) : setIsLoading(false);
+  }, [status]); 
 
   return (
     <Grid container component="main" sx={{ height: "100vh" }}>
