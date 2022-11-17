@@ -22,14 +22,14 @@ import Header from "../../components/Header";
 import { AvatarUpload } from "../../components/users/AvatarUpload";
 import Swal from 'sweetalert2/src/sweetalert2.js'
 
-const { lettersNumbersAndSpaces } = validations;
+const { lettersNumbersAndSpaces, lettersAndSpaces, onlyNumbers } = validations;
 
 const schema = yup.object().shape({
-  name: yup.string().required("Requerido"),
-  lastName: yup.string().required("Requerido"),
+  name: yup.string().required("Requerido").matches(lettersAndSpaces, "Solo letras"),
+  lastName: yup.string().required("Requerido").matches(lettersAndSpaces, "Solo letras"),
   email: yup.string().email("Formato incorrecto").required("Requerido"),
   password: yup.string().min(6, "6 caracteres mínimo").required("Requerido"),
-  phone: yup.string().required("Requerido"),
+  phone: yup.string().required("Requerido").matches(onlyNumbers, "Solo números"),
   role: yup.string().required("Requerido"),
   address: yup
     .string()
@@ -127,7 +127,7 @@ export const UserCreate = () => {
         setIsLoading(false);
         
       } catch (err) {
-        await setError(error.response.data);
+        await setError(err.response.data);
         console.log(err);
         setIsLoading(false);
       }

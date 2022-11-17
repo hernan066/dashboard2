@@ -154,14 +154,14 @@ export const AvatarUpload = ({ user, token }) => {
                 width: "150px",
                 height: "150px",
                 overflow: "hidden",
-                backgroundColor: "#15ab12",
+               
               }}>
 
-             {/*    <img
+              <img
                   src={fileDataURL}
                   alt="preview"
                   style={{ height: "100%", objectFit: "cover" }}
-                /> */}
+                /> 
               </Box>
             )}
             {!fileDataURL && (

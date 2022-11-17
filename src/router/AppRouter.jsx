@@ -13,6 +13,7 @@ import Pie from "../pages/pie";
 import { UserList } from "../pages/users/UserList";
 import { UserCreate } from "../pages/users/UserCreate";
 import { UserEdit } from "../pages/users/UserEdit";
+import { UserDetails } from "../pages/users/UserDetails";
 
 export const AppRouter = () => {
   return (
@@ -34,6 +35,7 @@ export const AppRouter = () => {
         <Route path="/users" element={<UserList />} />
         <Route path="/users/new" element={<UserCreate />} />
         <Route path="/users/edit/:id" element={<UserEdit />} />
+        <Route path="/users/details/:id" element={<UserDetails />} />
       </Routes>
     </HashRouter>
   );
