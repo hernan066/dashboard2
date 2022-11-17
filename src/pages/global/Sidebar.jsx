@@ -41,7 +41,7 @@ const Sidebar = () => {
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-  const { currentUser }= useSelector((store)=> store.user)
+  /* const { currentUser }= useSelector((store)=> store.user) */
 
   return (
     <Box
@@ -109,7 +109,7 @@ const Sidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                 {currentUser.name}
+                {/*  {currentUser.name} */}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
                   Administrador

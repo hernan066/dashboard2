@@ -14,28 +14,45 @@ import { UserList } from "../pages/users/UserList";
 import { UserCreate } from "../pages/users/UserCreate";
 import { UserEdit } from "../pages/users/UserEdit";
 import { UserDetails } from "../pages/users/UserDetails";
+import { useEffect } from "react";
+import { useAuthStore } from "../hooks/useAuthStore";
 
 export const AppRouter = () => {
+  const { status, checkAuthToken } = useAuthStore();
+  // const authStatus = 'not-authenticated'; // 'authenticated'; // 'not-authenticated';
+
+  useEffect(() => {
+    checkAuthToken();
+  }, []);
+
+  /* if (status === "checking") {
+    return <h3>Cargando...</h3>;
+  } */
+
   return (
     <HashRouter>
       <Routes>
-       
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/contacts" element={<Contacts />} />
-        <Route path="/invoices" element={<Invoices />} />
-        <Route path="/form" element={<Form />} />
-        <Route path="/bar" element={<Bar />} />
-        <Route path="/pie" element={<Pie />} />
-        <Route path="/line" element={<Line />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/geography" element={<Geography />} />
-        <Route path="/login" element={<Login />} />
-        
-        <Route path="/users" element={<UserList />} />
-        <Route path="/users/new" element={<UserCreate />} />
-        <Route path="/users/edit/:id" element={<UserEdit />} />
-        <Route path="/users/details/:id" element={<UserDetails />} />
+        {status === "not-authenticated" || status === "checking"? (
+          <Route path="/" element={<Login />} />
+        ) : (
+          <>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/invoices" element={<Invoices />} />
+            <Route path="/form" element={<Form />} />
+            <Route path="/bar" element={<Bar />} />
+            <Route path="/pie" element={<Pie />} />
+            <Route path="/line" element={<Line />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/geography" element={<Geography />} />
+
+            <Route path="/users" element={<UserList />} />
+            <Route path="/users/new" element={<UserCreate />} />
+            <Route path="/users/edit/:id" element={<UserEdit />} />
+            <Route path="/users/details/:id" element={<UserDetails />} />
+          </>
+        )}
       </Routes>
     </HashRouter>
   );

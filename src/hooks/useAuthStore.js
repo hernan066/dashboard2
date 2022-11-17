@@ -1,25 +1,29 @@
 import { useDispatch, useSelector } from "react-redux";
-import apiRequest from "../api/apiRequest";
 
-import { clearErrorMessage, onChecking, onLogin, onLogout } from "../store";
+import apiRequest from "../api/apiRequest";
+import { clearErrorMessage, onChecking, onLogin, onLogout } from "../redux/authSlice";
+
+
 
 export const useAuthStore = () => {
   const { status, user, errorMessage } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  
 
   const startLogin = async ({ email, password }) => {
     dispatch(onChecking());
     try {
-      const { data } = await apiRequest.post("/auth/login", { email, password });
+      const { data } = await apiRequest.post("/auth/admin/login", { email, password });
       dispatch(
         onLogin({ name: data.user.name, _id: data.user._id, token: data.token })
       );
+     
     } catch (error) {
         console.log(error);
-      dispatch(onLogout("Credenciales incorrectas"));
+      dispatch(onLogout(error.response.data?.msg));
       setTimeout(() => {
         dispatch(clearErrorMessage());
-      }, 10);
+      }, 5000); 
     }
   };
 

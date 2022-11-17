@@ -1,10 +1,6 @@
-import * as React from "react";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -14,13 +10,10 @@ import { tokens } from "../../theme";
 import { useTheme } from "@emotion/react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import api from "../../api/api";
-import {useState} from "react"
-import{LoadingButton} from "@mui/lab"
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { LoadingButton } from "@mui/lab";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../redux/userSlice";
-
+import { useAuthStore } from "../../hooks/useAuthStore";
 
 const schema = yup.object().shape({
   email: yup.string().email("Formato incorrecto").required("Requerido"),
@@ -46,13 +39,10 @@ function Copyright(props) {
 export default function Login() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState({
-    status: false,
-    msg: ""
-  })
+
+  const { startLogin, errorMessage, status } = useAuthStore();
 
   const formik = useFormik({
     initialValues: {
@@ -60,40 +50,17 @@ export default function Login() {
       password: "",
     },
     onSubmit: async (values) => {
-      try {
-        setIsLoading(true);
-        const { email, password } = values;
-        const { data } = await api.post("/auth/admin/login", {
-          email,
-          password,
-        });
-
-        if (data?.token) {
-          dispatch(
-            login({
-              name: data.user.name,
-              avatar: data.user.avatar,
-              token: data.token,
-            })
-          ); 
-    
-          setError({status: false, msg: ''});
-          console.log(data)
-          navigate("/");
-        }else{
-          setError({status: true, msg: 'Error de credenciales'})
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        setError({status: true, msg: error.response.data.msg})
-        console.log(error.response.data.msg);
-
-        setIsLoading(false);
-      }
+      startLogin({ email: values.email, password: values.password });
     },
     validationSchema: schema,
   });
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      navigate("/dashboard");
+    }
+    console.log(status);
+  }, [status]);
 
   return (
     <Grid container component="main" sx={{ height: "100vh" }}>
@@ -146,7 +113,7 @@ export default function Login() {
               name="email"
               autoComplete="email"
               autoFocus
-              error={formik.errors.email}
+              error={!!formik.errors.email}
               helperText={formik.errors.email}
               onChange={formik.handleChange}
             />
@@ -159,11 +126,11 @@ export default function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
-              error={formik.errors.password}
+              error={!!formik.errors.password}
               helperText={formik.errors.password}
               onChange={formik.handleChange}
             />
-            
+
             <LoadingButton
               type="submit"
               fullWidth
@@ -177,12 +144,8 @@ export default function Login() {
             >
               Ingresar
             </LoadingButton>
-            {
-              error.status && (
-                <p style={{color: 'red'}}>{error.msg}</p>
-              )
-            }
-           
+            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+
             <Copyright sx={{ mt: 5 }} />
           </Box>
         </Box>

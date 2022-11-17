@@ -8,8 +8,8 @@ import { PersistGate } from "redux-persist/integration/react";
 
 function App() {
   const [theme, colorMode] = useMode();
-  const user = JSON.parse(localStorage.getItem("persist:root"))?.user
-  const currentUser = user && JSON.parse(user).currentUser;
+  const user = JSON.parse(localStorage.getItem("persist:root"))?.auth
+  const currentUser = user && JSON.parse(user).user;
   const TOKEN = currentUser?.token;
   console.log(TOKEN)
 
